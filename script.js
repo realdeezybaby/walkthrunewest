@@ -1,32 +1,30 @@
-const rooms=[['Front Door','🚪'],['Living Room','🛋️'],['Kitchen','🍳'],['Backyard','🌳'],['Garage','🚗'],['Basement','▰'],['Office','🪑'],['Upstairs','▱'],['Primary Bedroom','🛏️'],['Side Door','🚪']];
-const cats={
- Entry:[['Doorbell Camera','Entry / Camera','🚪'],['Smart Lock','Entry','🔒'],['Chime Extender','Network','▣']],
- Security:[['Outdoor Camera','Camera','📹'],['Indoor Camera','Camera','📷'],['Spotlight Pro','Camera Add-on','💡'],['Motion Detector','Security','◉']],
- Safety:[['Smoke Detector','Safety','🔥'],['Smoke / CO Combo','Safety','🚨']],
- Water:[['Water Sensor','Water Protection','💧'],['Smart Water Valve','Water Protection','🚰']],
- 'Smart Home':[['Thermostat','Comfort','🌡️'],['Garage Controller','Garage','🚗'],['Lamp Module','Convenience','💡']]
+const rooms=['Front Door','Living Room','Kitchen','Backyard','Garage','Basement','Office','Upstairs','Primary Bedroom','Bedroom 2','Bedroom 3','Hallway','Side Door'];
+const categories={
+  Entry:[['Doorbell Camera','Front door visibility and package protection'],['Smart Lock','Remote locking and entry control'],['Chime Extender','Better chime and doorbell coverage']],
+  Security:[['Outdoor Camera','Exterior video coverage'],['Indoor Camera','Interior video coverage'],['Spotlight Pro','Camera lighting and deterrence'],['Motion Detector','Interior motion protection'],['Glass Break Sensor','Glass break detection']],
+  Safety:[['Smoke Detector','Fire safety coverage'],['Smoke / CO Combo','Fire and carbon monoxide coverage'],['CO Detector','Carbon monoxide detection']],
+  Water:[['Water Sensor','Leak detection'],['Smart Water Valve','Automatic water shutoff protection']],
+  'Smart Home':[['Thermostat','Comfort and energy control'],['Garage Controller','Garage access control'],['Lamp Module','Lighting automation']]
 };
-let state=JSON.parse(localStorage.getItem('v21-state')||'{}');
-if(!state.recs) state.recs={};
-let currentRoom=state.currentRoom||rooms[0][0], currentCat=state.currentCat||'Entry', screenshotData=state.screenshot||'';
-const $=id=>document.getElementById(id); const save=()=>{state.currentRoom=currentRoom;state.currentCat=currentCat;state.screenshot=screenshotData;localStorage.setItem('v21-state',JSON.stringify(state));};
-function initFields(){['customerName','serviceNum','serviceType','date','notes'].forEach(id=>{if(state[id]) $(id).value=state[id]; $(id).oninput=()=>{state[id]=$(id).value;save();}}); if(!$('date').value) $('date').value=new Date().toISOString().slice(0,10);}
-function qty(room,product){return (((state.recs||{})[room]||{})[product]||0)}
-function setQty(room,product,val){if(!state.recs[room]) state.recs[room]={}; state.recs[room][product]=Math.max(0,val); if(state.recs[room][product]===0) delete state.recs[room][product]; save(); render();}
-function roomCount(room){return Object.values(state.recs[room]||{}).reduce((a,b)=>a+b,0)}
-function totalCount(){return rooms.reduce((a,[r])=>a+roomCount(r),0)}
-function renderAreas(){ $('areaList').innerHTML=rooms.map(([r,ico])=>`<button class="area-btn ${r===currentRoom?'active':''}" data-room="${r}"><span class="ico">${ico}</span><span><b>${r}</b><small>${roomCount(r)} selected</small></span><span>›</span></button>`).join(''); document.querySelectorAll('.area-btn').forEach(b=>b.onclick=()=>{currentRoom=b.dataset.room; currentCat='Entry'; save(); render();});}
-function renderTabs(){ $('tabs').innerHTML=Object.keys(cats).map(c=>`<button class="tab ${c===currentCat?'active':''}" data-cat="${c}">${iconForCat(c)} ${c}</button>`).join(''); document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{currentCat=b.dataset.cat;save();render();});}
-function iconForCat(c){return {Entry:'🚪',Security:'🛡️',Safety:'🔥',Water:'💧','Smart Home':'⌂'}[c]||''}
-function renderProducts(){ $('currentRoomTitle').textContent=currentRoom; $('productList').innerHTML=cats[currentCat].map(([name,sub,ico])=>`<div class="product"><div class="picon">${ico}</div><div><b>${name}</b><div class="muted">${sub}</div></div><div class="qty"><button data-d="-1" data-p="${name}">−</button><span>${qty(currentRoom,name)}</span><button class="plus" data-d="1" data-p="${name}">+</button></div></div>`).join(''); document.querySelectorAll('.qty button').forEach(b=>b.onclick=()=>setQty(currentRoom,b.dataset.p,qty(currentRoom,b.dataset.p)+Number(b.dataset.d)));}
-function renderSummary(){ $('totalBadge').textContent=`${totalCount()} total`; const rows=rooms.map(([r])=>[r,state.recs[r]||{}]).filter(([r,o])=>Object.keys(o).length); if(!rows.length){$('summaryList').textContent='No recommendations added yet.';return} $('summaryList').innerHTML=rows.map(([r,o])=>`<div class="room-summary"><b>${r}</b>${Object.entries(o).map(([p,n])=>`<div class="sum-row"><span>• ${p}</span><span>x${n}</span></div>`).join('')}</div>`).join('');}
-function render(){renderAreas();renderTabs();renderProducts();renderSummary();}
-$('clearRoom').onclick=()=>{state.recs[currentRoom]={};save();render();};
-$('resetBtn').onclick=()=>{if(confirm('Reset this walkthrough?')){localStorage.removeItem('v21-state');location.reload();}};
-$('screenshot').onchange=e=>{const f=e.target.files[0]; if(!f)return; const reader=new FileReader(); reader.onload=()=>{screenshotData=reader.result; $('preview').src=screenshotData; $('preview').hidden=false; $('uploadText').hidden=true; save();}; reader.readAsDataURL(f);};
-function summaryText(){let lines=[state.serviceNum||$('serviceNum').value||'Service #']; rooms.forEach(([r])=>{const o=state.recs[r]||{}; if(Object.keys(o).length){lines.push(`\n${r}`); Object.entries(o).forEach(([p,n])=>lines.push(`${p} x${n}`));}}); const notes=$('notes').value.trim(); if(notes) lines.push(`\nNotes: ${notes}`); return lines.join('\n');}
-$('copySummary').onclick=async()=>{await navigator.clipboard.writeText(summaryText()); alert('Manager summary copied.');};
-$('exportBackup').onclick=()=>{const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='coverage-audit-backup.json'; a.click();};
-$('previewReport').onclick=()=>{const name=$('customerName').value||'Customer'; const svc=$('serviceNum').value||'Service #'; const date=$('date').value; $('reportContent').innerHTML=`<h1>Walkthrough Summary</h1><p><b>Customer:</b> ${name}<br><b>Service #:</b> ${svc}<br><b>Date:</b> ${date}<br><b>Service Type:</b> ${$('serviceType').value}</p><h3>Recommended Improvements</h3><pre>${summaryText()}</pre>${$('notes').value?`<h3>Tech Notes</h3><p>${$('notes').value}</p>`:''}${screenshotData?`<h3>Panel Screenshot</h3><img src="${screenshotData}">`:''}`; $('reportDialog').showModal();};
-$('closeReport').onclick=()=>$('reportDialog').close();
-initFields(); if(screenshotData){$('preview').src=screenshotData;$('preview').hidden=false;$('uploadText').hidden=true;} render();
+let activeRoom=rooms[0], activeCategory='Entry', imageData='';
+let selections=JSON.parse(localStorage.getItem('capSelections')||'{}');
+let customer=JSON.parse(localStorage.getItem('capCustomer')||'{}');
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem('capSelections',JSON.stringify(selections));localStorage.setItem('capCustomer',JSON.stringify(getCustomer()));}
+function getCustomer(){return {name:$('customerName').value,service:$('serviceNumber').value,type:$('serviceType').value,date:$('visitDate').value,notes:$('techNotes').value};}
+function setCustomer(){ $('customerName').value=customer.name||''; $('serviceNumber').value=customer.service||''; $('serviceType').value=customer.type||''; $('visitDate').value=customer.date||new Date().toISOString().slice(0,10); $('techNotes').value=customer.notes||''; }
+function roomTotal(room){return Object.values(selections[room]||{}).reduce((a,b)=>a+b,0)}
+function renderRooms(){ $('roomList').innerHTML=rooms.map(r=>`<button class="room-btn ${r===activeRoom?'active':''}" data-room="${r}"><span><span class="room-name">${r}</span><span class="room-sub">${roomTotal(r)} recommendations</span></span><span>›</span></button>`).join(''); document.querySelectorAll('.room-btn').forEach(b=>b.onclick=()=>{activeRoom=b.dataset.room;activeCategory='Entry';renderAll();});}
+function renderTabs(){ $('categoryTabs').innerHTML=Object.keys(categories).map(c=>`<button class="tab-btn ${c===activeCategory?'active':''}" data-cat="${c}">${c}</button>`).join(''); document.querySelectorAll('.tab-btn').forEach(b=>b.onclick=()=>{activeCategory=b.dataset.cat;renderAll();});}
+function qty(name){return ((selections[activeRoom]||{})[name])||0}
+function changeQty(name,delta){ if(!selections[activeRoom]) selections[activeRoom]={}; const next=Math.max(0,qty(name)+delta); if(next===0) delete selections[activeRoom][name]; else selections[activeRoom][name]=next; save(); renderAll();}
+function renderProducts(){ $('activeRoomTitle').textContent=activeRoom; $('roomCount').textContent=`${roomTotal(activeRoom)} selected`; $('productList').innerHTML=categories[activeCategory].map(([name,meta])=>`<div class="product-row"><div><div class="product-title">${name}</div><div class="product-meta">${meta}</div></div><div class="qty"><button onclick="changeQty('${name.replace(/'/g,"\\'")}',-1)">−</button><span>${qty(name)}</span><button onclick="changeQty('${name.replace(/'/g,"\\'")}',1)">+</button></div></div>`).join('');}
+function summaryText(grouped=true){ let out=[]; rooms.forEach(r=>{const items=Object.entries(selections[r]||{}).filter(([,v])=>v>0); if(items.length){ if(grouped) out.push(`${r}`); items.forEach(([k,v])=>out.push(`${grouped?'• ':''}${k} x${v}`)); out.push(''); }}); return out.join('\n').trim();}
+function renderSummary(){ const txt=summaryText(true); $('summaryOutput').textContent=txt||'No recommendations added yet.'; $('summaryOutput').classList.toggle('empty',!txt); }
+function renderReport(){ const c=getCustomer(), txt=summaryText(true).replace(/\n/g,'<br>') || 'No recommendations added yet.'; $('reportPreview').innerHTML=`<h2>Walkthrough Summary</h2><p><strong>Customer:</strong> ${c.name||'—'}<br><strong>Service #:</strong> ${c.service||'—'}<br><strong>Service Type:</strong> ${c.type||'—'}<br><strong>Date:</strong> ${c.date||'—'}</p><h3>Recommended Improvements</h3><p>${txt}</p>${c.notes?`<h3>Tech Notes</h3><p>${c.notes.replace(/\n/g,'<br>')}</p>`:''}${imageData?`<h3>Attached Panel Screenshot</h3><img src="${imageData}" alt="Attached panel screenshot" />`:''}`; $('reportCard').classList.remove('hidden');}
+function renderAll(){renderRooms();renderTabs();renderProducts();renderSummary();}
+['customerName','serviceNumber','serviceType','visitDate','techNotes'].forEach(id=>document.addEventListener('input',e=>{if(e.target.id===id)save()}));
+$('copyManagerBtn').onclick=async()=>{const c=getCustomer(); const text=`${c.service||'Service #'}\n\nRecommended:\n\n${summaryText(false)||'No recommendations added.'}`; await navigator.clipboard.writeText(text); $('copyManagerBtn').textContent='Copied'; setTimeout(()=>$('copyManagerBtn').textContent='Copy Manager Summary',1200);};
+$('previewReportBtn').onclick=renderReport; $('printReportBtn').onclick=()=>{renderReport(); setTimeout(()=>window.print(),100)}; $('resetBtn').onclick=()=>{if(confirm('Clear this walkthrough?')){selections={};imageData='';localStorage.removeItem('capSelections');renderAll();$('screenshotPreview').innerHTML='';}};
+$('signalUpload').onchange=e=>{const file=e.target.files[0]; if(!file)return; const reader=new FileReader(); reader.onload=()=>{imageData=reader.result; $('screenshotPreview').innerHTML=`<img src="${imageData}" alt="Attached panel screenshot preview" />`;}; reader.readAsDataURL(file);};
+setCustomer(); renderAll();

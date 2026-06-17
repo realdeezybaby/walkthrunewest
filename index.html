@@ -3,69 +3,99 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Vivint Walkthrough V2.1</title>
-  <link rel="manifest" href="manifest.webmanifest">
+  <title>Coverage Audit Pro V2.2</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="app">
-    <header class="top">
-      <div class="brand"><span class="house">⌂</span><span class="viv">vivint</span><span class="sub">WALKTHROUGH SHEET V2.1</span></div>
-      <button id="resetBtn" class="btn ghost">↻ Reset</button>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Vivint Workflow Tool</p>
+        <h1>Coverage Audit Pro</h1>
+      </div>
+      <button class="ghost" id="resetBtn">Reset Walkthrough</button>
     </header>
 
     <section class="card customer-card">
-      <label>Customer<input id="customerName" placeholder="Customer name"></label>
-      <label>Service #<input id="serviceNum" placeholder="S-12345678"></label>
-      <label>Service Type<select id="serviceType"><option>Service Call</option><option>Install</option><option>Upgrade</option><option>Follow Up</option></select></label>
-      <label>Date<input id="date" type="date"></label>
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Step 1</p>
+          <h2>Customer Info</h2>
+        </div>
+        <span class="status-pill">Recommendations Only</span>
+      </div>
+      <div class="form-grid">
+        <label>Customer Name<input id="customerName" placeholder="Customer name" /></label>
+        <label>Service #<input id="serviceNumber" placeholder="S-123456" /></label>
+        <label>Service Type<input id="serviceType" placeholder="Service / Install / Upgrade" /></label>
+        <label>Date<input id="visitDate" type="date" /></label>
+      </div>
     </section>
 
-    <main class="grid">
-      <section class="card areas">
-        <p class="kicker">1. Coverage Areas</p>
-        <h2>Tap an area</h2>
-        <div id="areaList" class="area-list"></div>
-      </section>
-
-      <section class="card products">
-        <div class="section-head">
-          <div><p class="kicker">2. Products</p><h2 id="currentRoomTitle">Front Door</h2></div>
-          <button id="clearRoom" class="btn ghost small">Clear Room</button>
+    <main class="workspace">
+      <aside class="card rooms-card">
+        <div class="section-head compact">
+          <div>
+            <p class="eyebrow">Step 2</p>
+            <h2>Coverage Areas</h2>
+          </div>
         </div>
-        <div id="tabs" class="tabs"></div>
-        <div id="productList" class="product-list"></div>
-      </section>
+        <div class="room-list" id="roomList"></div>
+      </aside>
 
-      <section class="card summary">
-        <div class="section-head"><div><p class="kicker">3. Recommendations</p><h2>Summary</h2></div><span id="totalBadge" class="badge">0 total</span></div>
-        <div id="summaryList" class="summary-box">No recommendations added yet.</div>
-        <textarea id="notes" placeholder="Optional notes for customer or manager..."></textarea>
-      </section>
+      <section class="card product-card">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Step 3</p>
+            <h2 id="activeRoomTitle">Front Door</h2>
+          </div>
+          <span class="status-pill" id="roomCount">0 selected</span>
+        </div>
 
-      <section class="card upload">
-        <div class="section-head"><div><p class="kicker">4. Upload</p><h2>Attach Panel Screenshot</h2></div><span class="badge">Optional</span></div>
-        <label class="drop">
-          <input id="screenshot" type="file" accept="image/*">
-          <div id="uploadText"><div class="bigicon">▧</div><b>Upload System Screenshot</b><p>Upload the screenshot from your iPad, work phone, or panel.</p><button class="btn outline" type="button">Choose File</button><small>PNG, JPG up to 10MB</small></div>
-          <img id="preview" alt="Panel screenshot preview" hidden>
-        </label>
+        <div class="tabs" id="categoryTabs"></div>
+        <div class="product-list" id="productList"></div>
       </section>
     </main>
 
-    <footer class="actions">
-      <button id="previewReport" class="btn primary">▤ Preview Customer Report</button>
-      <button id="copySummary" class="btn outline">▤ Copy Manager Summary</button>
-      <button id="exportBackup" class="btn outline">⇩ Export Backup</button>
-    </footer>
+    <section class="card summary-card">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Step 4</p>
+          <h2>Recommendations Summary</h2>
+        </div>
+        <button id="copyManagerBtn">Copy Manager Summary</button>
+      </div>
+      <div id="summaryOutput" class="summary-output empty">No recommendations added yet.</div>
+      <label class="notes-label">Tech Notes<textarea id="techNotes" placeholder="Optional notes for customer or manager..."></textarea></label>
+      <div class="report-actions">
+        <button id="previewReportBtn">Preview Customer Report</button>
+        <button class="secondary" id="printReportBtn">Print / Save PDF</button>
+      </div>
+    </section>
+
+    <section class="card upload-card">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Step 5</p>
+          <h2>Attach Panel Screenshot</h2>
+        </div>
+      </div>
+      <p class="muted">Upload a screenshot from TechGenie, panel, iPad, or work phone. This does not force the camera.</p>
+      <input id="signalUpload" type="file" accept="image/*" />
+      <div id="screenshotPreview" class="screenshot-preview"></div>
+    </section>
+
+    <section class="card report-card hidden" id="reportCard">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Customer Copy</p>
+          <h2>Walkthrough Report Preview</h2>
+        </div>
+      </div>
+      <div id="reportPreview" class="report-preview"></div>
+    </section>
   </div>
 
-  <dialog id="reportDialog">
-    <div class="report-head"><h2>Customer Report Preview</h2><button id="closeReport" class="btn ghost">Close</button></div>
-    <div id="reportContent" class="report"></div>
-    <button onclick="window.print()" class="btn primary">Print / Save PDF</button>
-  </dialog>
-
-<script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
