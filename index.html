@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vivint Walkthrough V2.1</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="top">
+      <div class="brand"><span class="house">⌂</span><span class="viv">vivint</span><span class="sub">WALKTHROUGH SHEET V2.1</span></div>
+      <button id="resetBtn" class="btn ghost">↻ Reset</button>
+    </header>
+
+    <section class="card customer-card">
+      <label>Customer<input id="customerName" placeholder="Customer name"></label>
+      <label>Service #<input id="serviceNum" placeholder="S-12345678"></label>
+      <label>Service Type<select id="serviceType"><option>Service Call</option><option>Install</option><option>Upgrade</option><option>Follow Up</option></select></label>
+      <label>Date<input id="date" type="date"></label>
+    </section>
+
+    <main class="grid">
+      <section class="card areas">
+        <p class="kicker">1. Coverage Areas</p>
+        <h2>Tap an area</h2>
+        <div id="areaList" class="area-list"></div>
+      </section>
+
+      <section class="card products">
+        <div class="section-head">
+          <div><p class="kicker">2. Products</p><h2 id="currentRoomTitle">Front Door</h2></div>
+          <button id="clearRoom" class="btn ghost small">Clear Room</button>
+        </div>
+        <div id="tabs" class="tabs"></div>
+        <div id="productList" class="product-list"></div>
+      </section>
+
+      <section class="card summary">
+        <div class="section-head"><div><p class="kicker">3. Recommendations</p><h2>Summary</h2></div><span id="totalBadge" class="badge">0 total</span></div>
+        <div id="summaryList" class="summary-box">No recommendations added yet.</div>
+        <textarea id="notes" placeholder="Optional notes for customer or manager..."></textarea>
+      </section>
+
+      <section class="card upload">
+        <div class="section-head"><div><p class="kicker">4. Upload</p><h2>Attach Panel Screenshot</h2></div><span class="badge">Optional</span></div>
+        <label class="drop">
+          <input id="screenshot" type="file" accept="image/*">
+          <div id="uploadText"><div class="bigicon">▧</div><b>Upload System Screenshot</b><p>Upload the screenshot from your iPad, work phone, or panel.</p><button class="btn outline" type="button">Choose File</button><small>PNG, JPG up to 10MB</small></div>
+          <img id="preview" alt="Panel screenshot preview" hidden>
+        </label>
+      </section>
+    </main>
+
+    <footer class="actions">
+      <button id="previewReport" class="btn primary">▤ Preview Customer Report</button>
+      <button id="copySummary" class="btn outline">▤ Copy Manager Summary</button>
+      <button id="exportBackup" class="btn outline">⇩ Export Backup</button>
+    </footer>
+  </div>
+
+  <dialog id="reportDialog">
+    <div class="report-head"><h2>Customer Report Preview</h2><button id="closeReport" class="btn ghost">Close</button></div>
+    <div id="reportContent" class="report"></div>
+    <button onclick="window.print()" class="btn primary">Print / Save PDF</button>
+  </dialog>
+
+<script src="script.js"></script>
+</body>
+</html>
