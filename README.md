@@ -1,11 +1,13 @@
-# Coverage Audit Pro V2.2
+# Coverage Audit Pro V2.3
 
-Static Netlify-ready walkthrough tool.
+Netlify-ready static walkthrough recommendation tool.
 
-Changes:
-- Removed room emojis.
-- Removed product images to avoid inaccurate product visuals.
-- Product categories reduce scrolling.
-- Room-specific recommendations reset per room.
-- Added more preset rooms.
-- Screenshot upload stays near the bottom and does not force camera capture.
+## Updates
+- Removed room emojis
+- Removed product pictures to avoid inaccurate product visuals
+- Added fuller Vivint product list
+- Changed Secondary Keypad wording to Wireless Keypad
+- Kept recommendation-only workflow
+- Room-specific recommendations
+- Product category tabs
+- Attach panel screenshot upload near bottom

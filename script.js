@@ -1,10 +1,40 @@
 const rooms=['Front Door','Living Room','Kitchen','Backyard','Garage','Basement','Office','Upstairs','Primary Bedroom','Bedroom 2','Bedroom 3','Hallway','Side Door'];
 const categories={
-  Entry:[['Doorbell Camera','Front door visibility and package protection'],['Smart Lock','Remote locking and entry control'],['Chime Extender','Better chime and doorbell coverage']],
-  Security:[['Outdoor Camera','Exterior video coverage'],['Indoor Camera','Interior video coverage'],['Spotlight Pro','Camera lighting and deterrence'],['Motion Detector','Interior motion protection'],['Glass Break Sensor','Glass break detection']],
-  Safety:[['Smoke Detector','Fire safety coverage'],['Smoke / CO Combo','Fire and carbon monoxide coverage'],['CO Detector','Carbon monoxide detection']],
-  Water:[['Water Sensor','Leak detection'],['Smart Water Valve','Automatic water shutoff protection']],
-  'Smart Home':[['Thermostat','Comfort and energy control'],['Garage Controller','Garage access control'],['Lamp Module','Lighting automation']]
+  Entry:[
+    ['Doorbell Camera Pro','Front door visibility and package protection'],
+    ['Smart Lock','Remote locking and entry control'],
+    ['Door / Window Sensor','Entry point protection'],
+    ['Chime Extender','Better chime and doorbell coverage']
+  ],
+  Cameras:[
+    ['Outdoor Camera Pro','Exterior video coverage'],
+    ['Indoor Camera Pro','Interior video coverage'],
+    ['Spotlight Pro','Camera lighting and deterrence'],
+    ['Playback DVR','Continuous video playback storage']
+  ],
+  Sensors:[
+    ['Motion Sensor','Interior motion protection'],
+    ['Glass Break Sensor','Glass break detection'],
+    ['Door / Window Sensor','Door and window opening detection']
+  ],
+  Safety:[
+    ['Smoke Detector','Fire safety coverage'],
+    ['Smoke / CO Combo Detector','Fire and carbon monoxide coverage'],
+    ['Carbon Monoxide Detector','Carbon monoxide detection']
+  ],
+  Water:[
+    ['Water Sensor','Leak detection'],
+    ['Smart Water Valve','Automatic water shutoff protection']
+  ],
+  'Smart Control':[
+    ['Smart Hub','Main system control panel'],
+    ['Wireless Keypad','Additional arming and disarming control'],
+    ['Smart Thermostat','Comfort and energy control'],
+    ['Garage Door Control','Garage access control'],
+    ['Smart Lighting / Lamp Module','Lighting automation'],
+    ['Google Nest Smart Speaker','Voice control integration'],
+    ['Nest Thermostat','Compatible thermostat integration']
+  ]
 };
 let activeRoom=rooms[0], activeCategory='Entry', imageData='';
 let selections=JSON.parse(localStorage.getItem('capSelections')||'{}');
