@@ -5,13 +5,12 @@ Static Netlify-ready walkthrough tool.
 ## Files
 - `index.html` — full app in one file
 
-## Deploy to Netlify
-1. Upload this folder to GitHub.
-2. Connect the GitHub repo to Netlify.
-3. Set publish directory to the project root.
-4. No build command is needed.
+## New share options
+- Customer Share: recommendations-only customer report.
+- Manager Share: internal report with recommendations, manager notes, and Tech Genie signal screenshot.
+- Print / Save PDF prints whichever report is currently displayed.
 
-## Notes
-- Data auto-saves locally in the browser using localStorage.
-- Tech Genie screenshot preview works locally in the browser but is not uploaded to a server.
-- Print / Save PDF uses the browser print dialog.
+## Deploy to Netlify
+1. Replace your current `index.html` in GitHub with this new `index.html`.
+2. Commit the change.
+3. Netlify should redeploy automatically.

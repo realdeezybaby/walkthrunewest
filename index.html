@@ -347,6 +347,43 @@ button{
   gap:10px;
   margin-top:18px;
 }
+
+.shareSwitch{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:12px 0 14px;
+}
+.managerSignalImg{
+  width:100%;
+  max-height:360px;
+  object-fit:contain;
+  border:1px solid var(--line);
+  border-radius:12px;
+  margin-top:8px;
+  background:#fff;
+}
+.internalBox{
+  background:#f9fafb;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px 12px;
+  margin-top:10px;
+  font-size:13px;
+  line-height:1.4;
+  white-space:pre-wrap;
+}
+.managerOnlyLabel{
+  display:inline-block;
+  background:#111;
+  color:#fff;
+  border-radius:999px;
+  padding:5px 9px;
+  font-size:11px;
+  font-weight:850;
+  margin-bottom:8px;
+}
+
 @media(max-width:920px){
   .layout{grid-template-columns:1fr}
   .tabs{grid-template-columns:1fr 1fr}
@@ -520,9 +557,11 @@ button{
         </div>
 
         <div class="actions" style="margin-top:0">
-          <button class="primary" onclick="generateSummary()">Generate / Refresh Summary</button>
-          <button class="dark" onclick="window.print()">Print / Save PDF</button>
+          <button class="primary" onclick="generateCustomerSummary()">Customer Share</button>
+          <button class="dark" onclick="generateManagerSummary()">Manager Share</button>
+          <button class="ghost" onclick="window.print()">Print / Save PDF</button>
         </div>
+        <div class="hint">Customer Share shows recommendations only. Manager Share includes internal notes and the Tech Genie signal screenshot.</div>
 
         <div class="compactReport" id="customerReport">
           <div class="compactHeader">
@@ -533,7 +572,7 @@ button{
             <div style="text-align:right;font-size:12px;color:#d1d5db">Preview</div>
           </div>
           <div class="compactBody">
-            <p class="smallText">Click “Generate / Refresh Summary” to preview the compact report.</p>
+            <p class="smallText">Choose Customer Share or Manager Share to preview the correct report.</p>
           </div>
         </div>
       </section>
@@ -680,13 +719,14 @@ function clearSignal(){
   img.src = "";
   img.style.display = "none";
 }
-function generateSummary(){
+function getSummaryData(){
   const name = document.getElementById("customerName").value || "Customer";
   const service = document.getElementById("serviceType").value;
   const score = document.getElementById("coverageScore").innerText;
-  const signal = document.getElementById("signalUpload").files.length ? "Attached" : "Not Attached";
+  const signalAttached = document.getElementById("signalUpload").files.length > 0;
+  const signal = signalAttached ? "Attached" : "Not Attached";
   const date = new Date().toLocaleDateString();
-
+  const notes = document.getElementById("managerNotes").value.trim() || "No internal manager notes added.";
   const recRows = recommendations.length ? recommendations.map(r=>`
     <tr>
       <td><b>${r.area}</b></td>
@@ -698,6 +738,26 @@ function generateSummary(){
       <td colspan="3" style="color:#6b7280">No recommendations added yet.</td>
     </tr>
   `;
+  return {name, service, score, signal, signalAttached, date, notes, recRows};
+}
+
+function buildCompactReport(mode){
+  const d = getSummaryData();
+  const isManager = mode === "manager";
+  const signalImg = document.getElementById("signalPreview");
+  const signalImgHtml = isManager && d.signalAttached && signalImg.src ? `
+    <div style="margin-top:12px">
+      <span class="managerOnlyLabel">Tech Genie Signal Screenshot</span>
+      <img class="managerSignalImg" src="${signalImg.src}" alt="Tech Genie Signal Screenshot">
+    </div>
+  ` : "";
+
+  const managerNotesHtml = isManager ? `
+    <div style="margin-top:12px">
+      <span class="managerOnlyLabel">Internal Manager Notes</span>
+      <div class="internalBox">${d.notes}</div>
+    </div>
+  ` : "";
 
   document.getElementById("customerReport").outerHTML = `
     <div class="compactReport" id="customerReport">
@@ -705,22 +765,22 @@ function generateSummary(){
         <div style="display:flex;align-items:center;gap:10px">
           <div class="compactLogo">VIVINT</div>
           <div>
-            <b>Home Coverage Review</b><br>
-            <span style="font-size:11px;color:#d1d5db">Walkthrough summary</span>
+            <b>${isManager ? "Manager Walkthrough Summary" : "Home Coverage Review"}</b><br>
+            <span style="font-size:11px;color:#d1d5db">${isManager ? "Internal manager share" : "Customer share"}</span>
           </div>
         </div>
-        <div style="text-align:right;font-size:12px;color:#d1d5db">${date}</div>
+        <div style="text-align:right;font-size:12px;color:#d1d5db">${d.date}</div>
       </div>
 
       <div class="compactBody">
         <div class="compactMeta">
-          <div class="metaBox"><small>Customer</small><b>${name}</b></div>
-          <div class="metaBox"><small>Visit Type</small><b>${service}</b></div>
-          <div class="metaBox"><small>Signal</small><b>${signal}</b></div>
+          <div class="metaBox"><small>Customer</small><b>${d.name}</b></div>
+          <div class="metaBox"><small>Visit Type</small><b>${d.service}</b></div>
+          <div class="metaBox"><small>Signal</small><b>${d.signal}</b></div>
         </div>
 
         <div class="compactScore">
-          <div class="num">${score}</div>
+          <div class="num">${d.score}</div>
           <div>
             <b>Home Coverage Assessment</b><br>
             <span class="smallText">Based on recommendations from today’s walkthrough.</span>
@@ -728,7 +788,9 @@ function generateSummary(){
         </div>
 
         <p class="compactIntro">
-          Recommended improvements are listed below to help improve visibility, reduce blind spots, and strengthen overall home awareness.
+          ${isManager 
+            ? "Internal walkthrough summary with recommendations, manager notes, and Tech Genie signal documentation." 
+            : "Recommended improvements are listed below to help improve visibility, reduce blind spots, and strengthen overall home awareness."}
         </p>
 
         <table class="compactTable">
@@ -739,17 +801,33 @@ function generateSummary(){
               <th>Reason</th>
             </tr>
           </thead>
-          <tbody>${recRows}</tbody>
+          <tbody>${d.recRows}</tbody>
         </table>
 
+        ${managerNotesHtml}
+        ${signalImgHtml}
+
         <div class="compactFooter">
-          <div>Tech Genie Signal Screenshot: <b>${signal}</b></div>
-          <div>Manager notes are internal only.</div>
+          <div>Tech Genie Signal Screenshot: <b>${d.signal}</b></div>
+          <div>${isManager ? "Manager/internal version." : "Customer-facing version."}</div>
         </div>
       </div>
     </div>
   `;
 }
+
+function generateCustomerSummary(){
+  buildCompactReport("customer");
+}
+
+function generateManagerSummary(){
+  buildCompactReport("manager");
+}
+
+function generateSummary(){
+  generateCustomerSummary();
+}
+
 function goStep(n){
   step = n;
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
@@ -807,7 +885,7 @@ function resetAll(){
         </div>
         <div style="text-align:right;font-size:12px;color:#d1d5db">Preview</div>
       </div>
-      <div class="compactBody"><p class="smallText">Click “Generate / Refresh Summary” to preview the compact report.</p></div>
+      <div class="compactBody"><p class="smallText">Choose Customer Share or Manager Share to preview the correct report.</p></div>
     </div>`;
   goStep(1);
 }
