@@ -1,0 +1,15 @@
+{
+  "name": "Vivint Walkthrough Pro V9",
+  "short_name": "Walkthrough V9",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#07110f",
+  "theme_color": "#07110f",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

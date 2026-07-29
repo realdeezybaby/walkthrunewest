@@ -1,16 +1,21 @@
-# Vivint Walkthrough Sheet
+# Vivint Walkthrough Pro V9
 
-Static Netlify-ready walkthrough tool.
+Features:
+- Service number
+- Quick locations
+- Quantity +/- product controls
+- Recommended / Sold / Follow Up Later / Declined
+- Referral reminder
+- Product totals
+- Customer recap
+- Manager summary
+- Copy/share
+- Export CSV
+- Export Excel-compatible .xls
+- Export .txt
+- Print / Save PDF
+- Local save on device
 
-## Files
-- `index.html` — full app in one file
-
-## New share options
-- Customer Share: recommendations-only customer report.
-- Manager Share: internal report with recommendations, manager notes, and Tech Genie signal screenshot.
-- Print / Save PDF prints whichever report is currently displayed.
-
-## Deploy to Netlify
-1. Replace your current `index.html` in GitHub with this new `index.html`.
-2. Commit the change.
-3. Netlify should redeploy automatically.
+Latest requested update:
+- Office quick location
+- Multiple quantities for repeated equipment using the existing +/- controls
