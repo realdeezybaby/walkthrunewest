@@ -1,16 +1,11 @@
-# Vivint Walkthrough Sheet
+# Vivint Walkthrough Sheet — Restored Orange Version
 
-Static Netlify-ready walkthrough tool.
+This is the original orange/black multi-step walkthrough with:
+- Coverage percentage assessment
+- Signal / Tech Genie screenshot page
+- Customer and manager reports
+- Manager notes
+- Office location
+- Equipment quantities from 1–99
 
-## Files
-- `index.html` — full app in one file
-
-## New share options
-- Customer Share: recommendations-only customer report.
-- Manager Share: internal report with recommendations, manager notes, and Tech Genie signal screenshot.
-- Print / Save PDF prints whichever report is currently displayed.
-
-## Deploy to Netlify
-1. Replace your current `index.html` in GitHub with this new `index.html`.
-2. Commit the change.
-3. Netlify should redeploy automatically.
+The page also unregisters older service workers and clears old caches so the prior green build cannot continue appearing after deployment.

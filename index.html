@@ -405,6 +405,11 @@ button{
   #screen4{display:block!important}
   .compactReport{border:1px solid #ddd}
 }
+
+.quantityControl{display:grid;grid-template-columns:46px 1fr 46px;gap:8px;align-items:end}
+.quantityControl input{margin-top:6px;text-align:center;font-weight:900}
+.qtyBtn{height:43px;margin-top:6px;border:0;border-radius:10px;background:var(--orange);color:#fff;font-size:22px;font-weight:950;cursor:pointer}
+@media(max-width:700px){.row{grid-template-columns:1fr}.quantityControl{grid-template-columns:52px 1fr 52px}}
 </style>
 </head>
 <body>
@@ -476,6 +481,7 @@ button{
               <option>Kitchen</option>
               <option>Dining Room</option>
               <option>Bedroom</option>
+              <option>Office</option>
               <option>Basement</option>
               <option>Garage</option>
               <option>Mudroom</option>
@@ -515,6 +521,14 @@ button{
               <option>Bridge</option>
               <option>PLC</option>
             </select>
+          </div>
+          <div>
+            <label>Quantity</label>
+            <div class="quantityControl">
+              <button type="button" class="qtyBtn" onclick="changeQuantity(-1)">−</button>
+              <input id="quantityInput" type="number" min="1" max="99" value="1" inputmode="numeric" onchange="normalizeQuantity();saveState()">
+              <button type="button" class="qtyBtn" onclick="changeQuantity(1)">+</button>
+            </div>
           </div>
         </div>
 
@@ -659,14 +673,29 @@ function pickTemplate(t){
   renderTemplates();
   saveState();
 }
+function normalizeQuantity(){
+  const input = document.getElementById("quantityInput");
+  let value = parseInt(input.value, 10);
+  if(!Number.isFinite(value)) value = 1;
+  input.value = Math.max(1, Math.min(99, value));
+  return parseInt(input.value, 10);
+}
+function changeQuantity(delta){
+  const input = document.getElementById("quantityInput");
+  input.value = normalizeQuantity() + delta;
+  normalizeQuantity();
+  saveState();
+}
 function addRecommendation(){
   const area = document.getElementById("areaSelect").value;
   const product = document.getElementById("productSelect").value;
   const reason = document.getElementById("reasonText").value.trim();
+  const quantity = normalizeQuantity();
   if(!area || !product || !reason){ alert("Pick an area, product, and reason first."); return; }
-  recommendations.push({area, product, reason});
+  recommendations.push({area, product, quantity, reason});
   selectedTemplate = "";
   document.getElementById("reasonText").value = "";
+  document.getElementById("quantityInput").value = 1;
   renderTemplates();
   renderRecommendations();
   updateScore();
@@ -681,6 +710,7 @@ function removeRecommendation(index){
 function clearCurrentRec(){
   selectedTemplate = "";
   document.getElementById("reasonText").value = "";
+  document.getElementById("quantityInput").value = 1;
   renderTemplates();
 }
 function renderRecommendations(){
@@ -694,7 +724,7 @@ function renderRecommendations(){
       <div class="recTop">
         <div>
           <span class="badge">${r.area}</span>
-          <h3 style="font-size:16px;margin:9px 0 4px">${r.product}</h3>
+          <h3 style="font-size:16px;margin:9px 0 4px">${r.product}${(r.quantity||1)>1 ? ` ×${r.quantity}` : ""}</h3>
         </div>
         <button class="remove" onclick="removeRecommendation(${i})">Remove</button>
       </div>
@@ -730,7 +760,7 @@ function getSummaryData(){
   const recRows = recommendations.length ? recommendations.map(r=>`
     <tr>
       <td><b>${r.area}</b></td>
-      <td>${r.product}</td>
+      <td>${r.product}${(r.quantity||1)>1 ? ` ×${r.quantity}` : ""}</td>
       <td>${r.reason}</td>
     </tr>
   `).join("") : `
@@ -856,7 +886,7 @@ function loadState(){
     document.getElementById("customerName").value = s.customerName || "";
     document.getElementById("serviceType").value = s.serviceType || "Install";
     document.getElementById("managerNotes").value = s.managerNotes || "";
-    recommendations = Array.isArray(s.recommendations) ? s.recommendations : [];
+    recommendations = Array.isArray(s.recommendations) ? s.recommendations.map(r=>({...r,quantity:r.quantity||1})) : [];
     renderRecommendations();
     updateScore();
     saveState();
@@ -871,6 +901,7 @@ function resetAll(){
   document.getElementById("serviceType").selectedIndex = 0;
   document.getElementById("managerNotes").value = "";
   document.getElementById("reasonText").value = "";
+  document.getElementById("quantityInput").value = 1;
   clearSignal();
   renderTemplates();
   renderRecommendations();
@@ -888,6 +919,14 @@ function resetAll(){
       <div class="compactBody"><p class="smallText">Choose Customer Share or Manager Share to preview the correct report.</p></div>
     </div>`;
   goStep(1);
+}
+
+// Remove any previously deployed service worker/cache so an older green build cannot keep overriding this restored version.
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(registrations => registrations.forEach(reg => reg.unregister()));
+}
+if ('caches' in window) {
+  caches.keys().then(keys => Promise.all(keys.map(key => caches.delete(key))));
 }
 renderTemplates();
 loadState();
